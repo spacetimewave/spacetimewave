@@ -11,7 +11,7 @@ To spin up all the local infraestructure:
 2. Run all microservices.
 
     ```console
-    cd spacetimewave/local
+    cd spacetimewave.infrastructure/local
     docker-compose up
     ```
 
