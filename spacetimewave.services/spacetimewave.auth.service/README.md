@@ -41,3 +41,20 @@ To spin up Keycloak with Postgres please follow the following steps:
 Now, you are ready to start configuring your authentication and authorization servers with Keycloak.
 
 > Disclaimer: Change the default passwords as soon as possible and use user secrets when deploying to prod.
+
+## Realm and Client Configurations:
+
+1. Access Keycloak Admin Portal using the following URL http://localhost:8080/.
+
+2. Create a Realm.
+
+3. Activate the Realm.
+
+4. Configure your Realm settings. 
+4.1. Allow user registration
+
+5. Register a user or log in to the Realm using the URL http://localhost:8080/realms/<realm>/account.
+
+E.g.: http://localhost:8080/realms/spacetimewave/account
+
+6. After logging in, you can configure your settings within the Realm.
