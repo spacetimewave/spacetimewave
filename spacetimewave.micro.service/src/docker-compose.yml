@@ -1,0 +1,41 @@
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8443:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://dashboard:18889
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=API.Service
+    networks:
+      - otel
+    # depends_on:
+    #   - db
+
+  dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:13
+    container_name: dashboard
+    ports:
+    - "18888:18888"
+    environment:
+    - ASPNETCORE_UI_CULTURE=en-US
+    - ASPNETCORE_CULTURE=en-US
+    networks:
+    - otel
+
+  # db:
+  #   image: postgres:13
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: appdb
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - otel
+
+networks:
+  otel:
