@@ -58,8 +58,8 @@ services:
   micro.service:
     container_name: micro.service
     build:
-      context: ../../spacetimewave.micro.service/src
-      dockerfile: ../../spacetimewave.micro.service/src/Dockerfile
+      context: ../../spacetimewave.services/spacetimewave.micro.service/src
+      dockerfile: ../../spacetimewave.services/spacetimewave.micro.service/src/Dockerfile
     ports:
       - "8443:443"
     environment:
