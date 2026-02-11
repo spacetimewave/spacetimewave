@@ -26,10 +26,12 @@ var configuration = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
 
-builder.Services.AddInfrastructure()
+builder.Services
+    .AddInfrastructure()
     .AddApplication()
     .ConfigureCors()
     .ConfigureOpenApi()
+    .AddSwaggerGenAuthentication(configuration)
     .AddControllers();
 
 builder.Configuration.AddConfiguration(configuration);
@@ -38,13 +40,9 @@ builder.Services.ConfigureAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Local")
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
-
 app.UseCors();
+app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.AddExceptionHandler();
@@ -52,6 +50,12 @@ app.AddExceptionHandler();
 app.MapControllers();
 app.MapTodosEndpoints();
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Local")
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 app.Run();

@@ -11,7 +11,6 @@ using Application.Configuration;
 using API.Controllers;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
-using AuthenticationService = Application.Services.AuthenticationService;
 using Domain.Entities;
 using System.Security.Cryptography;
 
@@ -45,14 +44,7 @@ public static class DependencyInjection
         switch (authenticationSettings.AuthenticationType)
         {
             case AuthenticationType.JwtBearer:
-                // self-issued JWT
                 return services.ConfigureJwtBearerAuthentication(configuration, authenticationOptions);
-
-            case AuthenticationType.MsEntraId:
-                return services.ConfigureMsEntraIdAuthentication(configuration, authenticationOptions);
-
-            case AuthenticationType.AzureAd:
-                return services.ConfigureAzureAdAuthentication(configuration, authenticationOptions);
 
             case AuthenticationType.None:
             default:
@@ -60,172 +52,100 @@ public static class DependencyInjection
         } 
     }
 
-    public static AuthenticationBuilder ConfigureMsEntraIdAuthentication(this IServiceCollection services, IConfiguration configuration, AuthenticationOptions? authOptions)
-    {
-        AuthenticationSettings authenticationSettings = configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>() ?? new AuthenticationSettings();
+    // public static AuthenticationBuilder ConfigureMsEntraIdAuthentication(this IServiceCollection services, IConfiguration configuration, AuthenticationOptions? authOptions)
+    // {
+    //     AuthenticationSettings authenticationSettings = configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>() ?? new AuthenticationSettings();
 
-        AzureAd azureAdSettings = authenticationSettings.AzureAd;
-        string oAuthServerUrl = $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0";
-        return services.AddAuthentication(options =>
-        {
-            options.DefaultChallengeScheme = authOptions?.DefaultChallengeScheme ?? JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultAuthenticateScheme = authOptions?.DefaultAuthenticateScheme ?? JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.Authority = $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0";
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true, // False for multi audience scenarios
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidAudience = azureAdSettings.Audience,
-                // ValidIssuer = $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0",
-                ValidIssuers = new[]
-                {
-                    $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0",
-                    $"https://sts.windows.net/{azureAdSettings.TenantId}/"
-                },
-                NameClaimType = "name",
-                RoleClaimType = "roles"
-            };
+    //     AzureAd azureAdSettings = authenticationSettings.AzureAd;
+    //     string oAuthServerUrl = $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0";
+    //     return services.AddAuthentication(options =>
+    //     {
+    //         options.DefaultChallengeScheme = authOptions?.DefaultChallengeScheme ?? JwtBearerDefaults.AuthenticationScheme;
+    //         options.DefaultAuthenticateScheme = authOptions?.DefaultAuthenticateScheme ?? JwtBearerDefaults.AuthenticationScheme;
+    //     })
+    //     .AddJwtBearer(options =>
+    //     {
+    //         options.Authority = $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0";
+    //         options.TokenValidationParameters = new TokenValidationParameters
+    //         {
+    //             ValidateIssuer = true,
+    //             ValidateAudience = true, // False for multi audience scenarios
+    //             ValidateLifetime = true,
+    //             ValidateIssuerSigningKey = true,
+    //             ValidAudience = azureAdSettings.Audience,
+    //             // ValidIssuer = $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0",
+    //             ValidIssuers = new[]
+    //             {
+    //                 $"{azureAdSettings.Instance}{azureAdSettings.TenantId}/v2.0",
+    //                 $"https://sts.windows.net/{azureAdSettings.TenantId}/"
+    //             },
+    //             NameClaimType = "name",
+    //             RoleClaimType = "roles"
+    //         };
 
-            options.Events = new JwtBearerEvents
-            {
-                OnTokenValidated = context =>
-                {
-                    var name = context.Principal?.Identity?.Name ?? "unknown";
-                    var email = context.Principal?.FindFirstValue("preferred_username") ?? "unknown";
-                    Console.WriteLine($"Token validated for: {name} ({email})");
-                    return Task.CompletedTask;
-                },
-                OnAuthenticationFailed = context =>
-                {
-                    Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-                    return Task.CompletedTask;
-                },
-                OnChallenge = context =>
-                {
-                    Console.WriteLine($"Challenging client to authenticate with Entra ID");
-                    return Task.CompletedTask;
-                }
-            };
-        });
-    }
+    //         options.Events = new JwtBearerEvents
+    //         {
+    //             OnTokenValidated = context =>
+    //             {
+    //                 var name = context.Principal?.Identity?.Name ?? "unknown";
+    //                 var email = context.Principal?.FindFirstValue("preferred_username") ?? "unknown";
+    //                 Console.WriteLine($"Token validated for: {name} ({email})");
+    //                 return Task.CompletedTask;
+    //             },
+    //             OnAuthenticationFailed = context =>
+    //             {
+    //                 Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+    //                 return Task.CompletedTask;
+    //             },
+    //             OnChallenge = context =>
+    //             {
+    //                 Console.WriteLine($"Challenging client to authenticate with Entra ID");
+    //                 return Task.CompletedTask;
+    //             }
+    //         };
+    //     });
+    // }
 
-    public static TokenValidationParameters GetJwtValidationParameters( JwtBearer jwtBearerSettings)
+    public static TokenValidationParameters GetJwtValidationParameters( AuthenticationSettings authenticationSettings)
     {
         List<SecurityKey> rsaPublicKeys = new List<SecurityKey> { };
         return new TokenValidationParameters
             {
-                ValidIssuer = jwtBearerSettings.Issuer,
+                ValidIssuer = authenticationSettings.Issuer,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKeys = rsaPublicKeys,
+
                 ValidateAudience = true, // for multi-audience scenarios: false
-                ValidAudience = jwtBearerSettings.Audience,
+                ValidAudience = authenticationSettings.Audience,
+
                 ValidateLifetime = true,
-                NameClaimType = "name",
-                RoleClaimType = "roles"
-            };
-    }
-
-    /// <summary>
-    /// Retrieves issuer public keys from the JwtAuthRepository to validate incoming JWTs.
-    /// Works for self-issued JWTs.
-    /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    public static List<SecurityKey> GetIssuerJwks(MessageReceivedContext context)
-    {
-        var jwtAuthRepository = context.HttpContext.RequestServices.GetRequiredService<IJwtAuthRepository>();
-        var keys = jwtAuthRepository.GetIssuerPublicKeys().Select(jwkJson =>
-        {
-            Jwk? jwk = System.Text.Json.JsonSerializer.Deserialize<Jwk>(jwkJson);
-            var rsa = RSA.Create();
-            rsa.ImportParameters(new RSAParameters
-            {
-                Modulus = jwtAuthRepository.Base64UrlDecode(jwk!.n),
-                Exponent = jwtAuthRepository.Base64UrlDecode(jwk!.e)
-            });
-
-            return (SecurityKey)new RsaSecurityKey(rsa) { KeyId = jwk.kid };
-        }).ToList();
-
-        return keys;
-    }
-
-    /// <summary>
-    /// Get jwks from ./well-known/jwks.json endpoint if using external issuer
-    /// TODO: get jwks and implement caching
-    /// </summary>
-    /// <returns></returns>
-    public static List<SecurityKey> GetIssuerJwks()
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Generates JWKs from configured private key in appsettings.json.
-    /// </summary>
-    /// <param name="jwtBearerSettings"></param>
-    /// <returns></returns>
-    public static List<SecurityKey> GenerateJwksFromPrivateKey(JwtBearer jwtBearerSettings)
-    {
-        return new List<SecurityKey> { 
-                new SymmetricSecurityKey(
-                    System.Text.Encoding.UTF8.GetBytes(jwtBearerSettings.IssuerKey)
-                ) 
+                // NameClaimType = "name",
+                // RoleClaimType = "roles"
             };
     }
 
     public static AuthenticationBuilder ConfigureJwtBearerAuthentication(this IServiceCollection services, IConfiguration configuration, AuthenticationOptions? authOptions, bool useIssuerPublicKeys = true)
     {
         AuthenticationSettings authenticationSettings = configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>() ?? new AuthenticationSettings();
-        JwtBearer jwtBearerSettings = authenticationSettings.JwtBearer;
         return services.AddAuthentication(options =>
         {
-            options.DefaultChallengeScheme = authOptions?.DefaultChallengeScheme ?? JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultAuthenticateScheme = authOptions?.DefaultAuthenticateScheme ?? JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            // options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
-            options.TokenValidationParameters = GetJwtValidationParameters(jwtBearerSettings);
-
+            options.RequireHttpsMetadata = false; 
+            options.MetadataAddress = authenticationSettings.MetadataUrl; 
+            options.TokenValidationParameters = GetJwtValidationParameters(authenticationSettings);
+            
             options.Events = new JwtBearerEvents
             {
-                OnMessageReceived = context =>
-                {
-                    if (useIssuerPublicKeys)
-                    {
-                        context.Options.TokenValidationParameters.IssuerSigningKeys = GetIssuerJwks(context);
-                    }
-                    else 
-                    {
-                        context.Options.TokenValidationParameters.IssuerSigningKeys = GenerateJwksFromPrivateKey(jwtBearerSettings);
-                    }
-
-                    return Task.CompletedTask;
-                },
-
-                OnTokenValidated = context =>
-                {
-                    var name = context.Principal?.Identity?.Name ?? "unknown";
-                    var email = context.Principal?.FindFirstValue("preferred_username") ?? "unknown";
-                    Console.WriteLine($"Token validated for: {name} ({email})");
-                    return Task.CompletedTask;
-                },
-                OnAuthenticationFailed = context =>
-                {
-                    Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-                    return Task.CompletedTask;
-                },
-                OnChallenge = context =>
-                {
-                    Console.WriteLine($"Challenging client to authenticate with JWT Bearer");
-                    return Task.CompletedTask;
-                }
+                // OnChallenge = context =>
+                // {
+                //     context.HandleResponse(); 
+                //     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                //     return Task.CompletedTask;
+                // }
             };
         });
     }
@@ -251,12 +171,8 @@ public static class DependencyInjection
     
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton<IJwtAuthRepository, JwtAuthRepository>();
-        services.AddSingleton<IUserRepository, UserRepository>();
-        services.AddSingleton<IOAuthRepository, OAuthRepository>();
-        services.AddSingleton<IOidcRepository, OidcRepository>();
-        services.AddSingleton<IAuthenticationRepository, AuthenticationRepository>();
-        services.AddSingleton<ITodosRepository, TodosRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ITodosRepository, TodosRepository>();
 
         return services;
     }
@@ -267,9 +183,8 @@ public static class DependencyInjection
         services.AddProblemDetails();
 
         // Application Services
-        services.AddSingleton<IJwtService, JwtService>();
-        services.AddSingleton<IAuthenticationService, AuthenticationService>();
-        services.AddSingleton<ITodosService, TodosService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<ITodosService, TodosService>();
         return services;
     }
 
@@ -286,7 +201,41 @@ public static class DependencyInjection
         });
 
         return services;
-    }  
+    } 
+
+    public static IServiceCollection AddSwaggerGenAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        AuthenticationSettings authenticationSettings = configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>() ?? new AuthenticationSettings();
+
+        services.AddSwaggerGen(options =>
+        {
+            options.CustomSchemaIds(id => id.FullName); 
+            options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = Microsoft.OpenApi.SecuritySchemeType.OAuth2,
+                Flows = new Microsoft.OpenApi.OpenApiOAuthFlows
+                {
+                    AuthorizationCode = new Microsoft.OpenApi.OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri(authenticationSettings.AuthorizationUrl),
+                        TokenUrl = new Uri(authenticationSettings.TokenUrl),
+                        Scopes = authenticationSettings.Scopes.Split(' ').ToDictionary(scope => scope, scope => scope)
+                    }
+                }
+            });
+
+            options.AddSecurityRequirement(doc => new Microsoft.OpenApi.OpenApiSecurityRequirement
+            {
+                {
+                    new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", doc),
+                    []  
+                }
+            });
+        });    
+
+        return services;
+    } 
 
     public static WebApplication AddExceptionHandler(this WebApplication app)
     {

@@ -40,17 +40,17 @@ AuthenticationOptions authenticationOptions = new AuthenticationOptions
     DefaultAuthenticateScheme = McpAuthenticationDefaults.AuthenticationScheme,
     DefaultChallengeScheme = McpAuthenticationDefaults.AuthenticationScheme
 };
-builder.Services.ConfigureAuthentication(builder.Configuration, authenticationOptions)
-    .AddMcp(options =>
-    {
-        options.ResourceMetadata = new()
-        {
-            Resource = new Uri(applicationSettings.McpServerUrl),
-            ResourceDocumentation = new Uri($"{applicationSettings.McpServerUrl}/mcp"),
-            AuthorizationServers = { new Uri($"{authenticationSettings.AzureAd.Instance}{authenticationSettings.AzureAd.TenantId}/v2.0") },
-            ScopesSupported = ["mcp:tools"],
-        };
-    });
+// builder.Services.ConfigureAuthentication(builder.Configuration, authenticationOptions)
+//     .AddMcp(options =>
+//     {
+//         options.ResourceMetadata = new()
+//         {
+//             Resource = new Uri(applicationSettings.McpServerUrl),
+//             ResourceDocumentation = new Uri($"{applicationSettings.McpServerUrl}/mcp"),
+//             AuthorizationServers = { new Uri($"{authenticationSettings.AzureAd.Instance}{authenticationSettings.AzureAd.TenantId}/v2.0") },
+//             ScopesSupported = ["mcp:tools"],
+//         };
+//     });
 
 builder.Services
     .AddInfrastructure()

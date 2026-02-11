@@ -20,7 +20,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Local",
-                "ASPNETCORE_URLS": "https://localhost:8443;http://localhost:8080"
+                "ASPNETCORE_URLS": "https://localhost:9443;http://localhost:9080"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/src/API/Views"
@@ -37,7 +37,7 @@
             "stopAtEntry": false,
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Local",
-                "ASPNETCORE_URLS": "https://localhost:9443;http://localhost:9080"
+                "ASPNETCORE_URLS": "https://localhost:10443;http://localhost:10080"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/src/MCP/Views"

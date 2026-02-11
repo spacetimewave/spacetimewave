@@ -4,7 +4,7 @@ services:
   # ------- Identity and Access Management (IAM) Service ------- #
   # ------------------------------------------------------------ #
   keycloakweb:
-    image: quay.io/keycloak/keycloak:nightly
+    image: quay.io/keycloak/keycloak:26.5
     container_name: keycloakweb
     environment:
       KC_DB: postgres
@@ -26,7 +26,8 @@ services:
     depends_on:
       - keycloakdb
     ports:
-      - 8080:8080
+      - 4001:8080
+      - 4002:9000
 
   keycloakdb:
     image: postgres:16.3
@@ -59,17 +60,30 @@ services:
     container_name: micro.service
     build:
       context: ../../spacetimewave.services/spacetimewave.micro.service/src
-      dockerfile: ../../spacetimewave.services/spacetimewave.micro.service/src/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8443:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Local
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://dashboard:18889
       - OTEL_RESOURCE_ATTRIBUTES=service.name=API.Service
+      - AuthenticationSettings__AuthenticationType=JwtBearer
+      - AuthenticationSettings__Realm=spacetimewave
+      - AuthenticationSettings__MetadataUrl=http://keycloakweb:8080/realms/spacetimewave/.well-known/openid-configuration
+      - AuthenticationSettings__AuthorizationUrl=http://keycloakweb:8080/realms/spacetimewave/protocol/openid-connect/auth
+      - AuthenticationSettings__TokenUrl=http://keycloakweb:8080/realms/spacetimewave/protocol/openid-connect/token
+      - AuthenticationSettings__Issuer=http://keycloakweb:8080/realms/spacetimewave
+      - AuthenticationSettings__ClientId=micro.spacetimewave.com
+      - AuthenticationSettings__Audience=account
+      - AuthenticationSettings__Scopes=profile email
+      - ApplicationSettings__ServerUrl=https://localhost:8443
+      - ApplicationSettings__McpServerUrl=https://localhost:9443
+      - ApplicationSettings__DatabaseSecretArn=arn:aws:secretsmanager:region:<account-id>:secret:<secret-name>
     networks:
       - otel
-    # depends_on:
-    #   - db
+    depends_on:
+      - keycloakweb
+      - keycloakdb
 
   # ------------------------------------------------------------ #
   # ---------------- Open Telemetry Dashboard ------------------ #
