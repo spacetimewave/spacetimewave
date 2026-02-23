@@ -223,6 +223,15 @@ ESLint and Prettier configuration for React.
     })
     ```
 
+## Containerization
+
+```console
+$ docker build -t react-container .
+
+$ docker run -d -p 3000:3000 --name react-container-instance react-container
+408515884be03baaa9b59036cec4fc7680ee8b27b4a50622323e1b33ef774836
+```
+
 ## Documentation
 
 Not available.

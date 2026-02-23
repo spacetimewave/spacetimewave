@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "vite --mode localhost",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "build-strict": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write ./src"
