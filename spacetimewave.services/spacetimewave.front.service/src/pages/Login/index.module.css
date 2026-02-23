@@ -1,0 +1,59 @@
+.container {
+    margin: 0px;
+    padding: 0px;
+    width: 360px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.header{
+    width:320px;
+    height: 40px;
+    padding: 20px 20px 0px 20px;
+    position: relative;
+    position: fixed;
+    top: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.cross{
+    align-items: flex-start;
+}
+
+.figure{
+    padding: 0px;
+    display:inline-block;
+    text-align:center;
+    max-width: 40px;
+    height: 40px;
+    /* Add position relative to parent */
+    position:absolute;
+    margin: auto;
+    left:0;
+    right:0;
+}
+
+.logo{
+    height:40px;
+    width:40px;
+}
+
+.main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width:280px;
+    padding: 20px 20px 20px 20px;
+}
+
+.title{
+    width: 280px;
+}
+

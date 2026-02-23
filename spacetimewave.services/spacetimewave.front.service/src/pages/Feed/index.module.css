@@ -1,0 +1,25 @@
+.container {
+    margin: 0px;
+    padding: 0px;
+    width: 360px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.header{
+    width:280px;
+    padding: 20px 20px 0px 20px;
+}
+
+.main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width:280px;
+    padding: 20px 20px 20px 20px;
+}
