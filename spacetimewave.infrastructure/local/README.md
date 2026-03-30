@@ -40,5 +40,7 @@ To spin up all the local infraestructure:
     User: admin@admin.com
     Password: admin
     ``` 
+    
 - API: https://localhost:8443/scalar/v1
+- Frontend: https://localhost:3000
 - Aspire Dashboard: http://localhost:18888/
