@@ -1,4 +1,4 @@
-export function SearchIcon(props) {
+export function SearchIcon(props:any) {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'

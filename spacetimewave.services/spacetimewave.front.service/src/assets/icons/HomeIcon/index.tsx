@@ -1,4 +1,4 @@
-export function HomeIcon(props) {
+export function HomeIcon(props:any) {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'

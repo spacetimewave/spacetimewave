@@ -10,7 +10,7 @@ export default function MobileNav() {
 		<footer className={styles.footer}>
 			<nav className={styles.nav}>
 				<NavLink
-					to='/feed'
+					to='/account/feed'
 					className={({ isActive }) =>
 						isActive ? styles.navlink_active : styles.navlink_inactive
 					}
@@ -18,7 +18,7 @@ export default function MobileNav() {
 					<HomeIcon width='30px' height='30px' />
 				</NavLink>
 				<NavLink
-					to='/search'
+					to='/account/search'
 					className={({ isActive }) =>
 						isActive ? styles.navlink_active : styles.navlink_inactive
 					}
@@ -26,7 +26,7 @@ export default function MobileNav() {
 					<SearchIcon width='30px' height='30px' />
 				</NavLink>
 				<NavLink
-					to='/messages'
+					to='/account/messages'
 					className={({ isActive }) =>
 						isActive ? styles.navlink_active : styles.navlink_inactive
 					}
@@ -34,7 +34,7 @@ export default function MobileNav() {
 					<MessageIcon width='30px' height='30px' />
 				</NavLink>
 				<NavLink
-					to='/profile'
+					to='/account/profile'
 					className={({ isActive }) =>
 						isActive ? styles.navlink_active : styles.navlink_inactive
 					}

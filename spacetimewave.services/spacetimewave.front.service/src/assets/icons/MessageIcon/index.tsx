@@ -1,4 +1,4 @@
-export function MessageIcon(props) {
+export function MessageIcon(props:any) {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
