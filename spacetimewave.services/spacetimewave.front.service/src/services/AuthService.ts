@@ -1,71 +1,53 @@
 import { useCredentialStore } from '../state/AuthState'
 
-const { setUsername, setUsermail, setPassword, setToken } =
-	useCredentialStore.getState()
+const KEYCLOAK_URL = import.meta.env.VITE_IDENTITY_PROVIDER_URL
+const KEYCLOAK_REALM = import.meta.env.VITE_IDENTITY_PROVIDER_TENANT_ID
+const KEYCLOAK_CLIENT_ID = import.meta.env.VITE_IDENTITY_PROVIDER_CLIENT_ID
+const TOKEN_URL = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`
+const LOGOUT_URL = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout`
 
-export const signup = async (
-	username: string,
-	email: string,
-	password: string,
-): Promise<boolean> => {
+function decodeJwtPayload(token: string): Record<string, unknown> {
 	try {
-		const response = await fetch(`${import.meta.env.VITE_API_URL}/signup`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				username,
-				email,
-				password,
-			}),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			throw new Error(errorData.message || 'Failed to sign up')
-		}
-
-		// If signup is successful
-		const data = await response.json()
-		setUsername(username)
-		setUsermail(email)
-		setPassword(password)
-		setToken(data.access_token)
-		return true
-	} catch (error) {
-		console.log(error)
-		return false
+		return JSON.parse(atob(token.split('.')[1]))
+	} catch {
+		return {}
 	}
 }
 
 export const login = async (
-	usermail: string,
+	username: string,
 	password: string,
 ): Promise<boolean> => {
 	try {
-		const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+		const response = await fetch(TOKEN_URL, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 			body: new URLSearchParams({
-				username: usermail,
+				grant_type: 'password',
+				client_id: KEYCLOAK_CLIENT_ID,
+				scope: 'openid',
+				username,
 				password,
 			}).toString(),
 		})
 
 		if (!response.ok) {
 			const errorData = await response.json()
-			throw new Error(errorData.message || 'Failed to log in')
+			throw new Error(errorData.error_description || 'Failed to log in')
 		}
 
-		// If login is successful
 		const data = await response.json()
-		setUsermail(usermail)
-		setUsername(data.user_name)
-		setPassword(password)
+		const payload = decodeJwtPayload(data.access_token)
+
+		const { setUsername, setUsermail, setToken, setRefreshToken, setIdToken } =
+			useCredentialStore.getState()
 		setToken(data.access_token)
+		setRefreshToken(data.refresh_token ?? null)
+		setIdToken(data.id_token ?? null)
+		setUsername((payload.preferred_username as string) ?? username)
+		setUsermail((payload.email as string) ?? null)
 		return true
 	} catch (error) {
 		console.log(error)
@@ -73,9 +55,72 @@ export const login = async (
 	}
 }
 
+export const exchangeAuthCode = async (code: string): Promise<boolean> => {
+	try {
+		const redirectUri = `${window.location.origin}/login`
+		const response = await fetch(TOKEN_URL, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: new URLSearchParams({
+				grant_type: 'authorization_code',
+				client_id: KEYCLOAK_CLIENT_ID,
+				code,
+				redirect_uri: redirectUri,
+			}).toString(),
+		})
+
+		if (!response.ok) return false
+
+		const data = await response.json()
+		const payload = decodeJwtPayload(data.access_token)
+		const { setUsername, setUsermail, setToken, setRefreshToken, setIdToken } =
+			useCredentialStore.getState()
+		setToken(data.access_token)
+		setRefreshToken(data.refresh_token ?? null)
+		setIdToken(data.id_token ?? null)
+		setUsername((payload.preferred_username as string) ?? null)
+		setUsermail((payload.email as string) ?? null)
+		return true
+	} catch {
+		return false
+	}
+}
+
+export const navigateToRegistration = () => {
+	const redirectUri = `${window.location.origin}/login`
+	window.location.href =
+		`${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth` +
+		`?client_id=${KEYCLOAK_CLIENT_ID}` +
+		`&response_type=code` +
+		`&scope=openid` +
+		`&prompt=create` +
+		`&redirect_uri=${encodeURIComponent(redirectUri)}`
+}
+
 export const signout = async () => {
-	setUsermail(null)
+	const { refreshToken, setUsername, setUsermail, setToken, setRefreshToken, setIdToken } =
+		useCredentialStore.getState()
+
+	if (refreshToken) {
+		try {
+			await fetch(LOGOUT_URL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					client_id: KEYCLOAK_CLIENT_ID,
+					refresh_token: refreshToken,
+				}).toString(),
+			})
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
 	setUsername(null)
-	setPassword(null)
+	setUsermail(null)
 	setToken(null)
+	setRefreshToken(null)
+	setIdToken(null)
 }

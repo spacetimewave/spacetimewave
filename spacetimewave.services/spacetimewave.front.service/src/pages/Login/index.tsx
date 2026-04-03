@@ -1,22 +1,48 @@
-// https://ethereum.stackexchange.com/questions/13652/how-do-you-sign-an-verify-a-message-in-javascript-proving-you-own-an-ethereum-ad
-
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styles from './index.module.css'
 import logo from '../../assets/images/logo.png'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import CrossIcon from '../../assets/icons/CrossIcon'
-import { useCredentialStore } from '../../state/AuthState'
+import { login, navigateToRegistration, exchangeAuthCode } from '../../services/AuthService'
 
 export default function Login() {
 	const navigate = useNavigate()
-	const { setUsername, setPassword } = useCredentialStore()
+	const [username, setUsername] = useState('')
+	const [password, setPassword] = useState('')
+	const [error, setError] = useState<string | null>(null)
+	const [loading, setLoading] = useState(false)
 
-	const login = (username, password) => {
-		setUsername(username)
-		setPassword(password)
-		navigate('/feed')
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search)
+		const code = params.get('code')
+		if (!code) return
+		window.history.replaceState({}, '', '/login')
+		setLoading(true)
+		exchangeAuthCode(code).then((ok) => {
+			setLoading(false)
+			if (ok) navigate('/account/feed')
+			else setError('Registration succeeded but sign-in failed. Please log in manually.')
+		})
+	}, [])
+
+	const handleLogin = async () => {
+		if (!username || !password) {
+			setError('Please enter your username and password.')
+			return
+		}
+		setError(null)
+		setLoading(true)
+		const ok = await login(username, password)
+		setLoading(false)
+		if (ok) {
+			navigate('/account/feed')
+		} else {
+			setError('Invalid credentials. Please try again.')
+		}
 	}
+
 	return (
 		<div className={styles.container}>
 			<header className={styles.header}>
@@ -29,24 +55,34 @@ export default function Login() {
 			</header>
 			<main className={styles.main}>
 				<h2 className={styles.title}>Sign in to Raptor</h2>
-				<form>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault()
+						handleLogin()
+					}}
+				>
+					<label>Username</label>
+					<Input
+						type='text'
+						onChange={(e:any) => {e.preventDefault(); setUsername(e.target.value)}}
+						autoComplete='username'
+					/>
 					<label>Password</label>
 					<Input
-						onChange={(ev) => {
-							ev.preventDefault()
-						}}
-					></Input>
-					<Button
-						color='black'
-						onClick={() => {
-							login('javierhersan', '12345')
-						}}
-					>
-						Next
+						type='password'
+						onChange={(e:any) => {e.preventDefault(); setPassword(e.target.value)}}
+						autoComplete='current-password'
+					/>
+					{error && <p className={styles.error}>{error}</p>}
+					<Button color='black' onClick={handleLogin}>
+						{loading ? 'Signing in…' : 'Sign in'}
 					</Button>
 				</form>
 				<p>
-					Don't have an account? <a href='/signup'>Sign up</a>
+					Don't have an account?{' '}
+					<a onClick={navigateToRegistration} style={{ cursor: 'pointer' }}>
+						Sign up
+					</a>
 				</p>
 			</main>
 		</div>

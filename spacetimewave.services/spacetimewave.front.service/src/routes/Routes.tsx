@@ -1,12 +1,13 @@
-import Error from '../pages/Error'
+import ProtectedRoute from './ProtectedRoute'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
+import Signup from '../pages/Signup'
+import Error from '../pages/Error'
 import Layout from '../components/Layout'
 import Feed from '../pages/Feed'
 import Search from '../pages/Search'
 import Profile from '../pages/Profile'
 import Messages from '../pages/Messages'
-import ProtectedRoute from './ProtectedRoute'
 
 export const Routes = [
 	{
@@ -20,7 +21,12 @@ export const Routes = [
 		errorElement: <Error />,
 	},
 	{
-		path: '/',
+		path: '/signup',
+		element: <Signup />,
+		errorElement: <Error />,
+	},
+	{
+		path: '/account',
 		element: (
 			<ProtectedRoute>
 				<Layout />
@@ -29,19 +35,19 @@ export const Routes = [
 		errorElement: <Error />,
 		children: [
 			{
-				path: '/feed',
+				path: '/account/feed',
 				element: <Feed />,
 			},
 			{
-				path: '/search',
+				path: '/account/search',
 				element: <Search />,
 			},
 			{
-				path: '/messages',
+				path: '/account/messages',
 				element: <Messages />,
 			},
 			{
-				path: '/profile',
+				path: '/account/profile',
 				element: <Profile />,
 			},
 		],

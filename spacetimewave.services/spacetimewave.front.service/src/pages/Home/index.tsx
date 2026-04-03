@@ -3,6 +3,7 @@ import styles from './index.module.css'
 import logo from '../../assets/images/logo.png'
 import WalletIcon from '../../assets/icons/WalletIcon'
 import Button from '../../components/Button'
+import { navigateToRegistration } from '../../services/AuthService'
 
 export default function Home() {
 	return (
@@ -17,8 +18,8 @@ export default function Home() {
 			<main className={styles.main}>
 				<Link to={'/login'} className={styles.link}>
 					<Button color='white'>
-						<WalletIcon height='16px' width='16px' color='#1e8eda' /> Sign in
-						with Raptor
+						<WalletIcon height='16px' width='16px' color='#1e8eda' /> 
+						Sign in with Raptor
 					</Button>
 				</Link>
 				<div className={styles.line_wrapper}>
@@ -26,9 +27,7 @@ export default function Home() {
 					or
 					<hr className={styles.line} />
 				</div>
-				<Link to={'/signup'}>
-					<Button color='blue'>Create account</Button>
-				</Link>
+				<Button color='blue' onClick={navigateToRegistration}>Create account</Button>
 				<p className={styles.terms}>
 					By signing up, you agree to the <a href='#'>Terms of Service</a> and{' '}
 					<a href='#'>Privacy Policy</a>, including <a href='#'>Cookie Use</a>.

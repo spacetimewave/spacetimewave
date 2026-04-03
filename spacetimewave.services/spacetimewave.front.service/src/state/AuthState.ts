@@ -6,12 +6,14 @@ export const useCredentialStore = create(
 		(set) => ({
 			username: null,
 			usermail: null,
-			password: null,
 			token: null,
+			refreshToken: null,
+			idToken: null,
 			setUsername: (key: string | null) => set({ username: key }),
 			setUsermail: (key: string | null) => set({ usermail: key }),
-			setPassword: (key: string | null) => set({ password: key }),
 			setToken: (key: string | null) => set({ token: key }),
+			setRefreshToken: (key: string | null) => set({ refreshToken: key }),
+			setIdToken: (key: string | null) => set({ idToken: key }),
 		}),
 		{
 			name: 'auth',
@@ -22,10 +24,12 @@ export const useCredentialStore = create(
 export interface IAuthStore {
 	username: string | null
 	usermail: string | null
-	password: string | null
 	token: string | null
+	refreshToken: string | null
+	idToken: string | null
 	setUsername: (username: string | null) => void
 	setUsermail: (usermail: string | null) => void
-	setPassword: (password: string | null) => void
 	setToken: (token: string | null) => void
+	setRefreshToken: (refreshToken: string | null) => void
+	setIdToken: (idToken: string | null) => void
 }

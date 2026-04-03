@@ -4,6 +4,10 @@ export default function Button({
 	children = '',
 	onClick = () => {},
 	color = 'white',
+}: {
+	children?: React.ReactNode
+	onClick?: () => void
+	color?: 'white' | 'black' | 'blue'
 }) {
 	// color, size
 	const whiteClass = color === 'white' ? styles.btn : ''
