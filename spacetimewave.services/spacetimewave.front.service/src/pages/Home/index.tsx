@@ -1,11 +1,21 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import styles from './index.module.css'
 import logo from '../../assets/images/logo.png'
-import WalletIcon from '../../assets/icons/WalletIcon'
 import Button from '../../components/Button'
-import { navigateToRegistration } from '../../services/AuthService'
+import { useAuthStore } from '../../state/AuthStore'
 
 export default function Home() {
+	const navigate = useNavigate()
+	const { account, login, register } = useAuthStore()
+
+	const handleRegister = () => {
+		if (account.isAuthenticated) {
+			navigate('/account/feed')
+		} else {
+			register()
+		}
+	}
+
 	return (
 		<div className={styles.container}>
 			<header className={styles.header}>
@@ -16,18 +26,17 @@ export default function Home() {
 				<h2>Join today.</h2>
 			</header>
 			<main className={styles.main}>
-				<Link to={'/login'} className={styles.link}>
-					<Button color='white'>
-						<WalletIcon height='16px' width='16px' color='#1e8eda' /> 
-						Sign in with Raptor
-					</Button>
-				</Link>
+				<Button color='white' onClick={login}>
+					Sign in with Raptor
+				</Button>
 				<div className={styles.line_wrapper}>
 					<hr className={styles.line} />
 					or
 					<hr className={styles.line} />
 				</div>
-				<Button color='blue' onClick={navigateToRegistration}>Create account</Button>
+				<Button color='blue' onClick={handleRegister}>
+					Create account
+				</Button>
 				<p className={styles.terms}>
 					By signing up, you agree to the <a href='#'>Terms of Service</a> and{' '}
 					<a href='#'>Privacy Policy</a>, including <a href='#'>Cookie Use</a>.

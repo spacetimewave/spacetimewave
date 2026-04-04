@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom'
-import { signout } from '../../services/AuthService'
+import { useAuthStore } from '../../state/AuthStore'
 import styles from './index.module.css'
 import MobileNav from '../../components/MobileNav'
 import Button from '../../components/Button'
 
 export default function Profile() {
 	const navigate = useNavigate()
+	const { logout } = useAuthStore()
 	const handleSignout = async () => {
-		await signout()
+		await logout()
 		navigate('/')
 	}
 

@@ -1,10 +1,10 @@
 import styles from './index.module.css'
-import { useCredentialStore } from '../../state/AuthState'
+import { useAuthStore } from '../../state/AuthStore'
 import MobileNav from '../../components/MobileNav'
 
 
 export default function Feed() {
-	const { username } = useCredentialStore()
+	const { account: { username } } = useAuthStore()
 	return (
 		<div className={styles.container}>
 			<header className={styles.header}></header>

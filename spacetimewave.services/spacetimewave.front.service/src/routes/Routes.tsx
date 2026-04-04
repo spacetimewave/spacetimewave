@@ -1,7 +1,5 @@
 import ProtectedRoute from './ProtectedRoute'
 import Home from '../pages/Home'
-import Login from '../pages/Login'
-import Signup from '../pages/Signup'
 import Error from '../pages/Error'
 import Layout from '../components/Layout'
 import Feed from '../pages/Feed'
@@ -12,17 +10,9 @@ import Messages from '../pages/Messages'
 export const Routes = [
 	{
 		path: '/',
-		element: <Home />,
-		errorElement: <Error />,
-	},
-	{
-		path: '/login',
-		element: <Login />,
-		errorElement: <Error />,
-	},
-	{
-		path: '/signup',
-		element: <Signup />,
+		element: (
+			<Home />
+		),
 		errorElement: <Error />,
 	},
 	{
