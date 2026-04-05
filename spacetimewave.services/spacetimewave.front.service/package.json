@@ -6,6 +6,7 @@
   "scripts": {
     "start": "vite --mode localhost",
     "build": "vite build",
+    "build:local": "vite build --mode localhost",
     "build-strict": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",

@@ -17,7 +17,7 @@ COPY . .
 
 # 4. CRITICAL: If you have a local node_modules, it might have overwritten the 
 # container's versions. We ensure the build sees the installed Vite.
-RUN pnpm run build
+RUN pnpm run build:local
 
 # ---------- Stage 2: Production ----------
 FROM node:22.16.0-alpine
