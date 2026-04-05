@@ -23,7 +23,7 @@ spacetimewave
 All the infrastructure microservices are deployed as isolated containers. Use spacetimewave.infrastructure/local/docker-compose.yml file to explore them. Launch them using Rancher and containerd:
 
 ```
-nerdctl compose up
+nerdctl compose up [--build]
 ```
 
 ## Microservices

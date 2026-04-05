@@ -14,7 +14,7 @@ To spin up all the local infraestructure:
 
     ```console
     cd spacetimewave.infrastructure/local
-    nerdctl compose up
+    nerdctl compose up [--build]
     ```
 
     2.2. Run it with Docker CLI using dockerd API.

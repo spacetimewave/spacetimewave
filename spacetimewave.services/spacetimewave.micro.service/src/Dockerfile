@@ -2,20 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution file
-COPY *.sln ./
-
-# Copy project files
-COPY API/API.csproj src/API/
-COPY Application/Application.csproj src/Application/
-COPY Infrastructure/Infrastructure.csproj src/Infrastructure/
-COPY Domain/Domain.csproj src/Domain/
+# Copy dotnet solution files
+COPY . ./src
 
 # Restore dependencies for API
 RUN dotnet restore src/API/API.csproj
-
-# Copy the rest of the source
-COPY . ./src
 
 # Publish API
 RUN dotnet publish src/API/API.csproj \
