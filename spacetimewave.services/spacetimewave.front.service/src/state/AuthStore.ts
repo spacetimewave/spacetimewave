@@ -17,6 +17,7 @@ export interface IAuthStore {
 	login: () => Promise<void>
 	register: () => Promise<void>
 	logout: () => Promise<void>
+	getToken: () => string | undefined
 }
 
 export const useAuthStore = create<IAuthStore>((set) => ({
@@ -42,6 +43,8 @@ export const useAuthStore = create<IAuthStore>((set) => ({
 	register: () => authService.register(),
 
 	logout: () => authService.logout(),
+
+	getToken: () => authService.getToken(),
 }))
 
 function buildAccount(): Account {

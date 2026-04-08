@@ -1,14 +1,13 @@
-// import { useAuthStore } from '../state/AuthState'
+import { useAuthStore } from '../state/AuthStore'
 
-export const fetch = (
+export const apiFetch = (
 	input: RequestInfo | URL,
 	init: RequestInit = {},
 ): Promise<Response> => {
-	// const token = useAuthStore.getState().account.token
-	const token = "" // --- IGNORE ---
+	const token = useAuthStore.getState().getToken()
 	const headers = new Headers(init.headers)
 	if (token) {
 		headers.set('Authorization', `Bearer ${token}`)
 	}
-	return fetch(input, { ...init, headers })
+	return globalThis.fetch(input, { ...init, headers })
 }

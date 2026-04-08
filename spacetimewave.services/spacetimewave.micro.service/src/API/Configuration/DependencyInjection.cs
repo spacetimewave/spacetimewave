@@ -188,6 +188,14 @@ public static class DependencyInjection
         return services;
     }
 
+    public static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration)
+    {
+        StripeSettings stripeSettings = configuration.GetSection("StripeSettings").Get<StripeSettings>() ?? new StripeSettings();
+        services.AddSingleton(stripeSettings);
+        services.AddSingleton<IPaymentsService, PaymentsService>();
+        return services;
+    }
+
     public static IServiceCollection ConfigureCors(this IServiceCollection services)
     {
         services.AddCors(options =>

@@ -29,6 +29,7 @@ var configuration = new ConfigurationBuilder()
 builder.Services
     .AddInfrastructure()
     .AddApplication()
+    .AddPayments(configuration)
     .ConfigureCors()
     .ConfigureOpenApi()
     .AddSwaggerGenAuthentication(configuration)
@@ -49,6 +50,7 @@ app.AddExceptionHandler();
 
 app.MapControllers();
 app.MapTodosEndpoints();
+app.MapPaymentEndpoints();
 
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Local")
 {

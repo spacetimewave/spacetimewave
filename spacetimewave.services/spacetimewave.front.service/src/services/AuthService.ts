@@ -40,4 +40,8 @@ export class AuthService {
 	updateToken(minValidity: number) {
 		return this._keycloak.updateToken(minValidity)
 	}
+
+	getToken(): string | undefined {
+		return this._keycloak.token
+	}
 }
