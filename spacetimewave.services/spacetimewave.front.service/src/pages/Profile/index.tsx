@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../../state/AuthStore'
-import { PaymentService, type Subscription } from '../../services/PaymentService'
+import { PaymentService, type Subscription, SubscriptionPlan, SubscriptionStatus } from '../../services/PaymentService'
 import styles from './index.module.css'
 import MobileNav from '../../components/MobileNav'
 import Button from '../../components/Button'
@@ -25,7 +25,18 @@ export default function Profile() {
 
 	useEffect(() => {
 		PaymentService.getSubscription()
-			.then(setSubscription)
+			.then((sub) => {
+				// Map numeric plan/status to string enums if needed
+				const planMap = { 0: SubscriptionPlan.Free, 1: SubscriptionPlan.Pro };
+				const statusMap = { 0: SubscriptionStatus.Active, 1: SubscriptionStatus.Inactive, 2: SubscriptionStatus.Canceled };
+				const mappedSub = {
+					...sub,
+					plan: typeof sub.plan === 'number' ? planMap[sub.plan] : sub.plan,
+					status: typeof sub.status === 'number' ? statusMap[sub.status] : sub.status,
+				};
+				setSubscription(mappedSub);
+				console.log('Fetched subscription:', mappedSub);
+			})
 			.catch(() => setSubscription(null))
 			.finally(() => setLoadingSubscription(false))
 	}, [])
@@ -46,7 +57,11 @@ export default function Profile() {
 		}
 	}
 
-	const isPro = subscription?.plan === 'Pro' && subscription?.status === 'Active'
+	const isPro =
+		subscription?.plan === SubscriptionPlan.Pro &&
+		subscription?.status === SubscriptionStatus.Active
+
+	console.log('Rendering Profile - isPro:', isPro, 'subscription:', subscription)
 
 	return (
 		<div className={styles.container}>

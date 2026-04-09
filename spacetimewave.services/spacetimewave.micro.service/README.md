@@ -171,3 +171,55 @@ docker run -p 8443:443 -p 8080:80 api
 ```console
 curl.exe -k https://localhost:8443/scalar/v1 --verbose
 ```
+
+## Payment Provider Integration: Stripe
+
+For local development and testing use a Stripe Sandbox:
+
+1. Create Stripe Sandbox: Recurring pricing model > Flat rate > Pre-built checkout form 
+
+2. Create recurring product > Name: Pro Subscription, Currency: EUR, Recurring: Monthly, Price: $9.99
+
+3. Get keypair from sandbox developer section:
+    - SecretKey
+    - PublishableKey
+
+4. Get Product and Price IDs:
+    - ProSubscriptionProductId
+    - ProSubscriptionPriceId
+
+5. Install Stripe CLI:
+
+    5.1. Download the latest windows ZIP file from GitHub.
+
+    5.2. Unzip the file stripe_X.X.X_windows_x86_64.zip.
+
+    5.3. Add the path to the unzipped stripe.exe file to your Path environment variable (e.g., C:\Program Files\Stripe).
+    
+6. Execute Stripe webhook to route the payment your local endpoint:
+
+    ```bash
+    stripe listen --forward-to https://localhost:9080/api/payments/webhook
+    You have not configured API keys yet. Running `stripe login`...
+    Your pairing code is: trump-zenith-openly-yay
+    This pairing code verifies your authentication with Stripe.
+    Press Enter to open the browser or visit https://dashboard.stripe.com/stripecli/confirm_auth?t=...
+    ```
+
+    Confirm it using your account and the link, and copy the WebhookSecret
+
+7. Fill appsettings.*.json file
+
+    ```json
+    {
+        ...
+        "StripeSettings": {
+            "SecretKey": "sk_test_51TK37AFSmC4Q2yMBPrQWKf0q0AsuZLFUvkg29mHvdnAeZyZ7QqvyLMEM7Rn5yeh2HNfJeo4mcDTBZgNN1qW70iKw00o0JWhcYL",
+            "PublishableKey": "pk_test_51TK37AFSmC4Q2yMBiISLggHIbLfUp2losjogah7cpdrMRsUQtutrAa8d34HC6J8Df7YCcbeINd0HY5P3tQzvdnRW003ZCBQO33",
+            "ProSubscriptionProductId": "prod_UIeZdBbYg2z8i5",
+            "ProSubscriptionPriceId": "price_1TK3G2FSmC4Q2yMBqWnMy6xF",
+            "WebhookSecret": "whsec_535a14a95e126e35a4e6de35618f3e4221a959ae5dfc077fb057d44c0754d990"
+        },
+        ...
+    }
+    ```

@@ -21,7 +21,7 @@ To spin up all the local infraestructure:
 
     ```console
     cd spacetimewave.infrastructure/local
-    docker-compose up
+    docker-compose up [--build]
     ```
 
 > Disclaimer: Change the default passwords as soon as possible and use user secrets when deploying to prod.

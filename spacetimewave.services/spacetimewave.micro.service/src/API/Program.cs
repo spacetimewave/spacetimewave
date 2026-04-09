@@ -30,7 +30,7 @@ builder.Services
     .AddInfrastructure()
     .AddApplication()
     .AddPayments(configuration)
-    .ConfigureCors()
+    .ConfigureCors(configuration)
     .ConfigureOpenApi()
     .AddSwaggerGenAuthentication(configuration)
     .AddControllers();
@@ -42,7 +42,11 @@ builder.Services.ConfigureAuthentication(builder.Configuration);
 var app = builder.Build();
 
 app.UseCors();
-app.UseHttpsRedirection();
+
+if (app.Environment.EnvironmentName != "Local")
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -192,19 +192,25 @@ public static class DependencyInjection
     {
         StripeSettings stripeSettings = configuration.GetSection("StripeSettings").Get<StripeSettings>() ?? new StripeSettings();
         services.AddSingleton(stripeSettings);
+        services.AddSingleton<IPaymentsRepository, PaymentsRepository>();
         services.AddSingleton<IPaymentsService, PaymentsService>();
         return services;
     }
 
-    public static IServiceCollection ConfigureCors(this IServiceCollection services)
+    public static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration? configuration = null)
     {
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.AllowAnyOrigin()
+                string[] allowedOrigins = configuration?
+                    .GetSection("Cors:AllowedOrigins")
+                    .Get<string[]>() ?? new[] { "http://localhost:5173", "http://localhost:3000", "https://localhost:5173", "https://localhost:3000" };
+
+                policy.WithOrigins(allowedOrigins)
                     .AllowAnyMethod()
-                    .AllowAnyHeader();
+                    .AllowAnyHeader()
+                    .AllowCredentials();
             });
         });
 

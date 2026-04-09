@@ -2,11 +2,25 @@ import { apiFetch } from './ApiService'
 
 const API_URL = import.meta.env.VITE_API_URL
 
+
+export const SubscriptionPlan = {
+	Free: 'Free',
+	Pro: 'Pro',
+} as const;
+export type SubscriptionPlan = typeof SubscriptionPlan[keyof typeof SubscriptionPlan];
+
+export const SubscriptionStatus = {
+	Active: 'Active',
+	Inactive: 'Inactive',
+	Canceled: 'Canceled',
+} as const;
+export type SubscriptionStatus = typeof SubscriptionStatus[keyof typeof SubscriptionStatus];
+
 export interface Subscription {
-	userId: string
-	plan: 'Free' | 'Pro'
-	status: 'Active' | 'Inactive' | 'Canceled'
-	updatedAt: string | null
+	userId: string;
+	plan: SubscriptionPlan;
+	status: SubscriptionStatus;
+	updatedAt: string | null;
 }
 
 export const PaymentService = {

@@ -55,7 +55,7 @@ AuthenticationOptions authenticationOptions = new AuthenticationOptions
 builder.Services
     .AddInfrastructure()
     .AddApplication()
-    .ConfigureCors()
+    .ConfigureCors(configuration)
     .ConfigureOpenApi();
     
 builder.Services.AddAuthorization();
